@@ -1,13 +1,31 @@
 // We load the plugin here.
-require('../../../src/index');
+import {removeConsoleLog} from '../../../src/index';
 
-import {HardhatUserConfig} from 'hardhat/types';
+import {HardhatRuntimeEnvironment, HardhatUserConfig} from 'hardhat/types';
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: '0.7.3',
+    version: '0.7.1',
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 2000,
+      },
+    },
   },
-  defaultNetwork: 'hardhat',
+  networks: {
+    rinkeby: {
+      url: 'http://localhost:8545',
+    },
+  },
+  paths: {
+    sources: 'src',
+  },
+  preprocess: {
+    eachLine: removeConsoleLog(
+      (hre: HardhatRuntimeEnvironment) => hre.network.name !== 'hardhat' && hre.network.name !== 'localhost'
+    ),
+  },
 };
 
 export default config;
