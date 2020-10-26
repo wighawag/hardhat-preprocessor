@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {useEnvironment} from './helpers';
-import fs from 'fs';
+import fs from 'fs-extra';
 import path from 'path';
 import {HardhatRuntimeEnvironment} from 'hardhat/types';
 
@@ -21,6 +21,7 @@ describe('Hardhat compile task', function () {
   useEnvironment('hardhat-project');
 
   it('It should not preprocess Test.sol', async function () {
+    fs.emptyDirSync('cache');
     await this.env.run('compile');
     const source = getSource(this.env, 'src/Test.sol', 'Test');
     expect(source).to.equal(fs.readFileSync('src/Test.sol').toString());
@@ -36,6 +37,7 @@ describe('Hardhat compile task', function () {
 describe('Hardhat compile task on rinkeby', function () {
   useEnvironment('hardhat-project', {networkName: 'rinkeby'});
   it('It should preprocess Test.sol on rinkeby', async function () {
+    fs.emptyDirSync('cache');
     await this.env.run('compile');
     const source = getSource(this.env, 'src/Test.sol', 'Test');
     expect(source).to.not.equal(fs.readFileSync('src/Test.sol').toString());
@@ -65,5 +67,22 @@ describe('Hardhat preprocess task on hardhat', function () {
     await this.env.run('preprocess', {dest});
     const source = fs.readFileSync(`${dest}/Test.sol`).toString();
     expect(source).to.equal(fs.readFileSync('src/Test.sol').toString());
+  });
+});
+
+describe('Hardhat compile task with comments', function () {
+  useEnvironment('hardhat-project-2', {networkName: 'hardhat'});
+
+  it('It should preprocess Test.sol', async function () {
+    fs.emptyDirSync('cache');
+    await this.env.run('compile');
+    const source = getSource(this.env, 'src/Test.sol', 'Test');
+    expect(source).to.not.equal(fs.readFileSync('src/Test.sol').toString());
+  });
+
+  it('It should preprocess Test.sol 2', async function () {
+    await this.env.run('compile');
+    const source = getSource(this.env, 'src/Test.sol', 'Test');
+    expect(source).to.not.equal(fs.readFileSync('src/Test.sol').toString());
   });
 });
