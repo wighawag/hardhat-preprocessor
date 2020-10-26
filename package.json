@@ -32,15 +32,16 @@
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
     "fs-extra": "^9.0.1",
-    "hardhat": "^2.0.0-rc.0",
+    "hardhat": "^2.0.1",
     "mocha": "^5.2.0",
     "prettier": "^2.0.5",
+    "prettier-plugin-solidity": "^1.0.0-alpha.57",
     "source-map-support": "^0.5.12",
     "ts-node": "^8.1.0",
     "typescript": "^3.4.5"
   },
   "peerDependencies": {
-    "hardhat": "^2.0.0-rc.0"
+    "hardhat": "^2.0.0"
   },
   "scripts": {
     "prepare": "node ./.setup.js",

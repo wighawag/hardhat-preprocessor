@@ -5,7 +5,7 @@ import {HardhatRuntimeEnvironment, HardhatUserConfig} from 'hardhat/types';
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: '0.7.1',
+    version: '0.7.3',
     settings: {
       optimizer: {
         enabled: true,
