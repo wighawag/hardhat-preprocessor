@@ -5,12 +5,16 @@ import {HardhatRuntimeEnvironment} from 'hardhat/types';
 
 declare module 'hardhat/types/config' {
   type LinePreprocessor = (line: string, sourceInfo: {absolutePath: string}) => string;
+  type LinePreprocessorConfig = {
+    transform: LinePreprocessor;
+    settings?: unknown;
+  };
 
   interface HardhatUserConfig {
     preprocess?: {
       eachLine: (
         hre: HardhatRuntimeEnvironment
-      ) => LinePreprocessor | Promise<LinePreprocessor | undefined> | undefined;
+      ) => LinePreprocessorConfig | Promise<LinePreprocessorConfig | undefined> | undefined;
     };
   }
 
@@ -18,7 +22,7 @@ declare module 'hardhat/types/config' {
     preprocess?: {
       eachLine: (
         hre: HardhatRuntimeEnvironment
-      ) => LinePreprocessor | Promise<LinePreprocessor | undefined> | undefined;
+      ) => LinePreprocessorConfig | Promise<LinePreprocessorConfig | undefined> | undefined;
     };
   }
 }

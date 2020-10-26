@@ -10,8 +10,10 @@ import {
   HardhatRuntimeEnvironment,
   HardhatUserConfig,
   LinePreprocessor,
+  LinePreprocessorConfig,
 } from 'hardhat/types';
 import {SolidityFilesCache} from 'hardhat/builtin-tasks/utils/solidity-files-cache';
+import murmur128 from 'murmur-128';
 import fs from 'fs-extra';
 import {promisify} from 'util';
 import path from 'path';
@@ -42,11 +44,14 @@ export const TASK_PREPROCESS = 'preprocess';
 
 export function removeConsoleLog(
   condition?: (hre: HardhatRuntimeEnvironment) => boolean | Promise<boolean>
-): (hre: HardhatRuntimeEnvironment) => Promise<LinePreprocessor | undefined> {
-  const preprocess = (line: string, sourceInfo: {absolutePath: string}): string => {
-    return line.replace(importsRegex, '').replace(callsRegex, '');
+): (hre: HardhatRuntimeEnvironment) => Promise<LinePreprocessorConfig | undefined> {
+  const preprocess = {
+    transform: (line: string, sourceInfo: {absolutePath: string}): string => {
+      return line.replace(importsRegex, '').replace(callsRegex, '');
+    },
+    settings: {removeLog: true},
   };
-  return async (hre: HardhatRuntimeEnvironment): Promise<LinePreprocessor | undefined> => {
+  return async (hre: HardhatRuntimeEnvironment): Promise<LinePreprocessorConfig | undefined> => {
     if (typeof condition === 'function') {
       const cond = condition(hre);
       const promise = cond as Promise<boolean>;
@@ -91,15 +96,17 @@ task(TASK_PREPROCESS)
           const to = path.join(destination, from);
           await fs.ensureDir(path.dirname(to));
           const content = fs.readFileSync(file).toString();
-          const newContent = linePreProcessor ? transform(linePreProcessor, {absolutePath: file}, content) : content;
+          const newContent = linePreProcessor
+            ? transform(linePreProcessor.transform, {absolutePath: file}, content)
+            : content;
           fs.writeFileSync(to, newContent);
         }
       }
     }
   });
 
-let _linePreprocessor: LinePreprocessor | undefined | null;
-async function getLinePreprocessor(hre: HardhatRuntimeEnvironment): Promise<LinePreprocessor | null> {
+let _linePreprocessor: LinePreprocessorConfig | undefined | null;
+async function getLinePreprocessor(hre: HardhatRuntimeEnvironment): Promise<LinePreprocessorConfig | null> {
   if (_linePreprocessor !== undefined) {
     return _linePreprocessor;
   }
@@ -130,12 +137,20 @@ internalTask(TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE).setAction(
   ): Promise<CompilationJob | CompilationJobCreationError> => {
     const linePreProcessor = await getLinePreprocessor(hre);
     if (linePreProcessor) {
-      const timeHex = Buffer.from(Date.now().toString()).toString('hex');
-      const numCharMissing = 40 - timeHex.length;
       let cacheBreaker;
-      if (numCharMissing > 0) {
-        cacheBreaker = '0x' + timeHex.padStart(40, '0');
+      if (!linePreProcessor.settings) {
+        const timeHex = Buffer.from(Date.now().toString()).toString('hex');
+        const numCharMissing = 40 - timeHex.length;
+
+        if (numCharMissing > 0) {
+          cacheBreaker = '0x' + timeHex.padStart(40, '0');
+        }
+      } else {
+        const settingsString = JSON.stringify(linePreProcessor.settings);
+        const settingsHash = Buffer.from(murmur128(settingsString)).toString('hex');
+        cacheBreaker = '0x' + settingsHash.padStart(40, '0');
       }
+
       for (const compiler of hre.config.solidity.compilers) {
         compiler.settings.libraries = compiler.settings.libraries || {};
         compiler.settings.libraries[''] = compiler.settings.libraries[''] || {};
@@ -144,7 +159,11 @@ internalTask(TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE).setAction(
         };
       }
 
-      file.content.rawContent = transform(linePreProcessor, {absolutePath: file.absolutePath}, file.content.rawContent);
+      file.content.rawContent = transform(
+        linePreProcessor.transform,
+        {absolutePath: file.absolutePath},
+        file.content.rawContent
+      );
     }
     return runSuper({dependencyGraph, file});
   }

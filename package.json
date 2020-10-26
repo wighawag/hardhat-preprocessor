@@ -1,6 +1,6 @@
 {
   "name": "hardhat-preprocessor",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Hardhat plugin that can preprocess contracts without writing to filesystem",
   "repository": "github:wighawag/hardhat-preprocessor",
   "author": "Ronan Sandford",
@@ -52,5 +52,8 @@
     "watch": "tsc -w",
     "publish:next": "npm publish --tag next",
     "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "murmur-128": "^0.2.1"
   }
 }

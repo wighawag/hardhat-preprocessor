@@ -54,7 +54,9 @@ Basic example that add a comment on each line:
 import {removeConsoleLog} from 'hardhat-preprocessor';
 export default {
   preprocess: {
-    eachLine: (bre) => (line) => line + '// comment at the end of each line',
+    eachLine: {
+      transform: (bre) => (line) => line + '// comment at the end of each line'
+    }
   },
 };
 ```
