@@ -12,7 +12,8 @@ This plugin allow you to specify a function that is executed on every line of al
 
 A typical example (included) is to remove console.log for production ready contracts.
 
-Note that this plugin do not touch the filesystem. It happens in memory.
+Note that this plugin, by default, does not touch the filesystem. It happens in memory.
+
 
 ## Installation
 
@@ -32,7 +33,11 @@ Nothing required
 
 ## Tasks
 
-No new tasks but it update the `compile` task.
+`hardhar-preprocessor` also add a new task: `preprocess`
+
+`hardhat preprocess [--dest <destination folder>]`
+
+This task will write the modification to disk. By default it overwrite the sources. if the `dest` option is set, it will write in that folder instead (and keep sources intact).
 
 ## Environment extensions
 
@@ -78,14 +83,6 @@ export default {
 ```
 
 In this example the preprocessing do not happen when used against hardhat (testing) or localhost
-
-## Tasks
-
-`hardhar-preprocessor` also add a new task: `preprocess`
-
-`hardhat preprocess [--dest <destination folder>]`
-
-This task will write the modification to disk. By default it overwrite the sources. if the `dest` option is set, it will write in that folder instead (and keep sources intact).
 
 
 ## Usage
