@@ -1,4 +1,4 @@
-[![hardhat](https://hardhat.org/hardhat-plugin-badge.svg?1)](https://hardhat.org)
+👷[hardhat](https://hardhat.org)
 
 # hardhat-preprocessor
 
@@ -12,7 +12,11 @@ This plugin allow you to specify a function that is executed on every line of al
 
 A typical example (included) is to remove console.log for production ready contracts.
 
-Note that this plugin, by default, does not touch the filesystem. It happens in memory.
+Note that this plugin, by default, does not touch the filesystem. It happens in memory and transform contract on-demand.
+
+This is done by simply importing the plugin in the hardhat.config.js
+
+It also include a task that can be invoked to render the transformation on disk instead.
 
 
 ## Installation
@@ -47,7 +51,7 @@ No extra fields added to the envirobment.
 
 This plugin extends the Hardhat Config with one new field: `preprocess`
 
-This field is an object with a field : `eachLine` that itself is a function that accept the BRE as argument and must return either an object with a `transform` field  or a promise to such object.
+This field is an object with a field : `eachLine` that itself is a function that accept the HRE as argument and must return either an object with a `transform` field  or a promise to such object.
 
 The `transform` function expect a string as argument (a line of a contract) and must return a string.
 
@@ -61,7 +65,7 @@ Basic example that add a comment on each line:
 import 'hardhat-preprocessor';
 export default {
   preprocess: {
-    eachLine: (bre) => ({
+    eachLine: (hre) => ({
       transform: (line) => line + '// comment at the end of each line',
       settings: {comment: true} // ensure the cache is working, in that example it can be anything as there is no option, the preprocessing happen all the time
     })
@@ -77,7 +81,7 @@ You can use it as follow :
 import {removeConsoleLog} from 'hardhat-preprocessor';
 export default {
   preprocess: {
-    eachLine: removeConsoleLog((bre) => bre.network.name !== 'hardhat' && bre.network.name !== 'localhost'),
+    eachLine: removeConsoleLog((hre) => hre.network.name !== 'hardhat' && hre.network.name !== 'localhost'),
   },
 };
 ```
