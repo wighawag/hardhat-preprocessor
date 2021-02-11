@@ -1,18 +1,14 @@
 import './type-extensions';
 import {internalTask, extendConfig, task} from 'hardhat/config';
-import * as taskTypes from 'hardhat/types/builtin-tasks';
 import * as types from 'hardhat/internal/core/params/argumentTypes';
-import {TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE} from 'hardhat/builtin-tasks/task-names';
+import {TASK_COMPILE_SOLIDITY_READ_FILE} from 'hardhat/builtin-tasks/task-names';
 import {
-  CompilationJob,
-  CompilationJobCreationError,
   HardhatConfig,
   HardhatRuntimeEnvironment,
   HardhatUserConfig,
   LinePreprocessor,
   LinePreprocessorConfig,
 } from 'hardhat/types';
-import {SolidityFilesCache} from 'hardhat/builtin-tasks/utils/solidity-files-cache';
 import murmur128 from 'murmur-128';
 import fs from 'fs-extra';
 import {promisify} from 'util';
@@ -122,19 +118,9 @@ async function getLinePreprocessor(hre: HardhatRuntimeEnvironment): Promise<Line
   return _linePreprocessor || null;
 }
 
-internalTask(TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE).setAction(
-  async (
-    {
-      dependencyGraph,
-      file,
-    }: {
-      dependencyGraph: taskTypes.DependencyGraph;
-      file: taskTypes.ResolvedFile;
-      solidityFilesCache?: SolidityFilesCache;
-    },
-    hre,
-    runSuper
-  ): Promise<CompilationJob | CompilationJobCreationError> => {
+internalTask(TASK_COMPILE_SOLIDITY_READ_FILE).setAction(
+  async ({absolutePath}: {absolutePath: string}, hre, runSuper): Promise<string> => {
+    let content = await runSuper({absolutePath});
     const linePreProcessor = await getLinePreprocessor(hre);
     if (linePreProcessor) {
       let cacheBreaker;
@@ -159,12 +145,8 @@ internalTask(TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE).setAction(
         };
       }
 
-      file.content.rawContent = transform(
-        linePreProcessor.transform,
-        {absolutePath: file.absolutePath},
-        file.content.rawContent
-      );
+      content = transform(linePreProcessor.transform, {absolutePath}, content);
     }
-    return runSuper({dependencyGraph, file});
+    return content;
   }
 );

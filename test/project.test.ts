@@ -86,3 +86,14 @@ describe('Hardhat compile task with comments', function () {
     expect(source).to.not.equal(fs.readFileSync('src/Test.sol').toString());
   });
 });
+
+describe('Test virtual imports', function () {
+  useEnvironment('hardhat-project-3', {networkName: 'hardhat'});
+
+  it('It should preprocess Test.sol', async function () {
+    fs.emptyDirSync('cache');
+    await this.env.run('compile');
+    const source = getSource(this.env, 'src/Test.sol', 'Test');
+    expect(source).to.not.equal(fs.readFileSync('src/Test.sol').toString());
+  });
+});
