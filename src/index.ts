@@ -32,9 +32,9 @@ extendConfig((config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) =>
     config.preprocess = userConfig.preprocess;
   }
 });
-// regex copied from https://github.com/ItsNickBarry/buidler-log-remover
+// regex copied from https://github.com/ItsNickBarry/hardhat-log-remover
 const importsRegex = /\n?(\s*)?import\s*['"]hardhat\/console.sol['"]\s*;/g;
-const callsRegex = /\n?(\s*)?console\s*\.\s*log\s*\([^;]*\)\s*;/g;
+const callsRegex = /\n?(\s*)?console\s*\.\s*log\w*\s*\([^;]*\)\s*;/g;
 
 export const TASK_PREPROCESS = 'preprocess';
 
