@@ -45,7 +45,7 @@ This task will write the modification to disk. By default it overwrite the sourc
 
 ## Environment extensions
 
-No extra fields added to the envirobment.
+No extra fields added to the environment.
 
 ## Configuration
 
