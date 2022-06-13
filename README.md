@@ -2,7 +2,7 @@
 
 # hardhat-preprocessor
 
-_This plugin allows to pre-preocess contract source code before compilation_
+_This plugin allows to pre-process contract source code before compilation_
 
 [Hardhat](http://hardhat.org) preprocessor plugin.
 
