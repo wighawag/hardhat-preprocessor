@@ -37,7 +37,7 @@ Nothing required
 
 ## Tasks
 
-`hardhar-preprocessor` also add a new task: `preprocess`
+`hardhat-preprocessor` also add a new task: `preprocess`
 
 `hardhat preprocess [--dest <destination folder>]`
 
