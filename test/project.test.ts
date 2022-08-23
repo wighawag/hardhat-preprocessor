@@ -58,13 +58,6 @@ describe('Hardhat preprocess task on rinkeby', function () {
     const source = fs.readFileSync(`${dest}/Test.sol`).toString();
     expect(source).to.not.equal(fs.readFileSync('src/Test.sol').toString());
   });
-
-  it('It should preprocess only specific file on rinkeby', async function () {
-    const dest = 'dest';
-    await this.env.run('preprocess', {dest: dest, files: ["Test.sol"]});
-    const source = fs.readFileSync(`${dest}/Test.sol`).toString();
-    expect(source).to.not.equal(fs.readFileSync('src/Test.sol').toString());
-  });
 });
 
 describe('Hardhat preprocess task on hardhat', function () {
@@ -72,13 +65,6 @@ describe('Hardhat preprocess task on hardhat', function () {
   it('It should preprocess Test.sol on hardhat', async function () {
     const dest = 'dest';
     await this.env.run('preprocess', {dest});
-    const source = fs.readFileSync(`${dest}/Test.sol`).toString();
-    expect(source).to.equal(fs.readFileSync('src/Test.sol').toString());
-  });
-
-  it('It should preprocess only specific file on hardhat', async function () {
-    const dest = 'dest';
-    await this.env.run('preprocess', {dest: dest, files: ["Test.sol"]});
     const source = fs.readFileSync(`${dest}/Test.sol`).toString();
     expect(source).to.equal(fs.readFileSync('src/Test.sol').toString());
   });
@@ -101,13 +87,29 @@ describe('Hardhat compile task with comments', function () {
   });
 });
 
-describe('Test virtual imports', function () {
+describe('Test virtual imports and name change', function () {
   useEnvironment('hardhat-project-3', {networkName: 'hardhat'});
 
-  it('It should preprocess Test.sol', async function () {
+  it('It should preprocess Test and Lib.sol', async function () {
     fs.emptyDirSync('cache');
     await this.env.run('compile');
-    const source = getSource(this.env, 'src/Test.sol', 'Test');
-    expect(source).to.not.equal(fs.readFileSync('src/Test.sol').toString());
+    const newTestContract = getSource(this.env, 'src/Test.sol', 'Test');
+    expect(newTestContract).to.not.equal(fs.readFileSync('src/Test.sol').toString());
+    const newLibContract = getSource(this.env, 'src/Lib.sol', 'Lib');
+    expect(newLibContract).to.not.equal(fs.readFileSync('src/Lib.sol').toString());
   });
 });
+
+describe.only('Preprocess specific files only', function () {
+  useEnvironment('hardhat-project-3', {networkName: 'hardhat'});
+  it('It should preprocess only specific file on hardhat', async function () {
+    fs.emptyDirSync('cache');
+    const dest = 'dest';
+    await this.env.run('preprocess', {dest: dest, files: ["Test.sol"]});
+    // Test.sol should be preprocessed but not Lib.sol
+    const newTestContract = fs.readFileSync(`${dest}/Test.sol`).toString();
+    expect(newTestContract).to.not.equal(fs.readFileSync('src/Test.sol').toString());
+    // Lib didn't change so it shouldn't even be in dest folder:
+    expect(fs.existsSync(`${dest}/Lib.sol`)).to.be.false;
+  });
+})
