@@ -58,6 +58,13 @@ describe('Hardhat preprocess task on rinkeby', function () {
     const source = fs.readFileSync(`${dest}/Test.sol`).toString();
     expect(source).to.not.equal(fs.readFileSync('src/Test.sol').toString());
   });
+
+  it('It should preprocess only specific file on rinkeby', async function () {
+    const dest = 'dest';
+    await this.env.run('preprocess', {dest: dest, files: ["Test.sol"]});
+    const source = fs.readFileSync(`${dest}/Test.sol`).toString();
+    expect(source).to.not.equal(fs.readFileSync('src/Test.sol').toString());
+  });
 });
 
 describe('Hardhat preprocess task on hardhat', function () {
@@ -65,6 +72,13 @@ describe('Hardhat preprocess task on hardhat', function () {
   it('It should preprocess Test.sol on hardhat', async function () {
     const dest = 'dest';
     await this.env.run('preprocess', {dest});
+    const source = fs.readFileSync(`${dest}/Test.sol`).toString();
+    expect(source).to.equal(fs.readFileSync('src/Test.sol').toString());
+  });
+
+  it('It should preprocess only specific file on hardhat', async function () {
+    const dest = 'dest';
+    await this.env.run('preprocess', {dest: dest, files: ["Test.sol"]});
     const source = fs.readFileSync(`${dest}/Test.sol`).toString();
     expect(source).to.equal(fs.readFileSync('src/Test.sol').toString());
   });

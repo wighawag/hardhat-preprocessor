@@ -8,7 +8,7 @@ _This plugin allows to pre-process contract source code before compilation_
 
 ## What
 
-This plugin allow you to specify a function that is executed on every line of all contracts so that you can pre-process the code.
+This plugin allow you to specify a function that is executed on every line of all contracts (or specified contracts) so that you can pre-process the code.
 
 A typical example (included) is to remove console.log for production ready contracts.
 
@@ -39,9 +39,16 @@ Nothing required
 
 `hardhat-preprocessor` also add a new task: `preprocess`
 
-`hardhat preprocess [--dest <destination folder>]`
+`hardhat preprocess [--dest <destination folder> --files <specific files to preprocess>]`
 
-This task will write the modification to disk. By default it overwrite the sources. if the `dest` option is set, it will write in that folder instead (and keep sources intact).
+* This task will write the modification to disk. 
+* By default it overwrite the sources. 
+* If the `dest` option is set, it will write in that folder instead (and keep sources intact). 
+* If the `files` option is set, it will only pre-process those files (instead of all files). The path to the files is relative to the source path. 
+Eg:
+```
+npx hardhat preprocess --files '["Greeter.sol"]'
+```
 
 ## Environment extensions
 

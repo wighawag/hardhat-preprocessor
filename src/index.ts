@@ -77,13 +77,23 @@ function transform(linePreProcessor: LinePreprocessor, file: {absolutePath: stri
 
 task(TASK_PREPROCESS)
   .addOptionalParam('dest', 'destination folder (default to current sources)', undefined, types.string)
+  .addOptionalParam('files', 'specific files to preprocess - path relative to current sources', [], types.json)
   .setAction(async (args, hre) => {
     const linePreProcessor = await getLinePreprocessor(hre);
 
     const sources = hre.config.paths.sources;
     const destination = args.dest || sources;
+    const specificFiles = args.files;
+
     if (linePreProcessor || destination != sources) {
-      const files = await getFiles(sources);
+      let files: string[];
+      // if no specific set of files mentioned then get all files:
+      if (specificFiles.length > 0) {
+        files = specificFiles.map((file: string) => path.resolve(sources, file));
+      } else {
+        files = await getFiles(sources);
+      }
+
       if (files.length > 0) {
         await fs.ensureDir(destination);
 
