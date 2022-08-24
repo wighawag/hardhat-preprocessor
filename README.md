@@ -39,15 +39,19 @@ Nothing required
 
 `hardhat-preprocessor` also add a new task: `preprocess`
 
-`hardhat preprocess [--dest <destination folder> --files <specific files to preprocess>]`
+`hardhat preprocess [--dest <destination folder> --files <specific files or glob pattern to preprocess>]`
 
 * This task will write the modification to disk. 
 * By default it overwrite the sources. 
 * If the `dest` option is set, it will write in that folder instead (and keep sources intact). 
-* If the `files` option is set, it will only pre-process those files (instead of all files). The path to the files is relative to the source path. 
+* If the `files` option is set, it will only pre-process those files or matching glob (instead of all files). The path to the files is relative to the source path. 
 Eg:
 ```
-npx hardhat preprocess --files '["Greeter.sol"]'
+npx hardhat preprocess --files Greeter.sol 
+```
+OR
+```
+npx hardhat preprocess --files */*.sol
 ```
 
 ## Environment extensions

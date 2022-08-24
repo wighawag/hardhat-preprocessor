@@ -11,6 +11,7 @@ import {
 } from 'hardhat/types';
 import murmur128 from 'murmur-128';
 import fs from 'fs-extra';
+import glob from 'glob';
 import {promisify} from 'util';
 import path from 'path';
 const readdir = promisify<string, string[]>(fs.readdir);
@@ -77,27 +78,32 @@ function transform(linePreProcessor: LinePreprocessor, file: {absolutePath: stri
 
 task(TASK_PREPROCESS)
   .addOptionalParam('dest', 'destination folder (default to current sources)', undefined, types.string)
-  .addOptionalParam('files', 'specific files to preprocess - path relative to current sources', [], types.json)
+  .addOptionalParam('files', 'specific files/globs to preprocess, comma-delimited - path relative to current sources', undefined, types.string)
   .setAction(async (args, hre) => {
     const linePreProcessor = await getLinePreprocessor(hre);
 
     const sources = hre.config.paths.sources;
     const destination = args.dest || sources;
-    const specificFiles = args.files;
+    const specificFileList: string[] = args.files ? args.files.split(',') : [];
 
     if (linePreProcessor || destination != sources) {
-      let files: string[];
-      // if no specific set of files mentioned then get all files:
-      if (specificFiles.length > 0) {
-        files = specificFiles.map((file: string) => path.resolve(sources, file));
-      } else {
-        files = await getFiles(sources);
-      }
+      let filesToPreprocess: string[] = [];
 
-      if (files.length > 0) {
+      // if no specific set of files mentioned then get all files.
+      // Otherwise iterate through each requested file/glob and retrieve absolute path.
+      if (specificFileList.length > 0) {
+        for (let fileNameOrPattern of specificFileList) {
+          const filesFound = await glob.sync(`${sources}/${fileNameOrPattern}`)
+          filesToPreprocess = filesToPreprocess.concat(filesFound);
+        }
+      } else { // no specific file mentioned - get all files in sources folder
+        filesToPreprocess = await getFiles(sources);
+      }
+      
+      if (filesToPreprocess.length > 0) {
         await fs.ensureDir(destination);
 
-        for (const file of files) {
+        for (const file of filesToPreprocess) {
           const from = path.relative(sources, file);
           const to = path.join(destination, from);
           await fs.ensureDir(path.dirname(to));
