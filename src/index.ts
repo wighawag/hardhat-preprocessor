@@ -76,6 +76,18 @@ function transform(linePreProcessor: LinePreprocessor, file: {absolutePath: stri
     .join('\n');
 }
 
+function getAbsolutePathOfFilesToPreprocessFromGlob(specificFiles: string, sources: string): string[] {
+  const specificFileList = specificFiles.split(",") || [];
+  let filesToPreprocessAbsolutePath: string[] = [];
+  if (specificFileList.length > 0) {
+    for (let fileNameOrPattern of specificFileList) {
+      const filesFound = glob.sync(`${sources}/${fileNameOrPattern}`)
+      filesToPreprocessAbsolutePath = filesToPreprocessAbsolutePath.concat(filesFound);
+    }
+  }
+  return filesToPreprocessAbsolutePath;
+}
+
 task(TASK_PREPROCESS)
   .addOptionalParam('dest', 'destination folder (default to current sources)', undefined, types.string)
   .addOptionalParam('files', 'specific files/globs to preprocess, comma-delimited - path relative to current sources', undefined, types.string)
@@ -84,22 +96,18 @@ task(TASK_PREPROCESS)
 
     const sources = hre.config.paths.sources;
     const destination = args.dest || sources;
-    const specificFileList: string[] = args.files ? args.files.split(',') : [];
 
     if (linePreProcessor || destination != sources) {
       let filesToPreprocess: string[] = [];
 
       // if no specific set of files mentioned then get all files.
       // Otherwise iterate through each requested file/glob and retrieve absolute path.
-      if (specificFileList.length > 0) {
-        for (let fileNameOrPattern of specificFileList) {
-          const filesFound = await glob.sync(`${sources}/${fileNameOrPattern}`)
-          filesToPreprocess = filesToPreprocess.concat(filesFound);
-        }
+      if(args.files) {
+        filesToPreprocess = await getAbsolutePathOfFilesToPreprocessFromGlob(args.files, sources);
       } else { // no specific file mentioned - get all files in sources folder
         filesToPreprocess = await getFiles(sources);
       }
-      
+
       if (filesToPreprocess.length > 0) {
         await fs.ensureDir(destination);
 
@@ -134,11 +142,22 @@ async function getLinePreprocessor(hre: HardhatRuntimeEnvironment): Promise<Line
   return _linePreprocessor || null;
 }
 
+// compile task will now preprocess in memory instead of in disk
 internalTask(TASK_COMPILE_SOLIDITY_READ_FILE).setAction(
   async ({absolutePath}: {absolutePath: string}, hre, runSuper): Promise<string> => {
     let content = await runSuper({absolutePath});
     const linePreProcessor = await getLinePreprocessor(hre);
     if (linePreProcessor) {
+      // if config defined certain files to preprocess -> if current file is not one of them, skip it
+      if (linePreProcessor.files) {
+        let filesToPreprocess = await getAbsolutePathOfFilesToPreprocessFromGlob(linePreProcessor.files, hre.config.paths.sources)
+        filesToPreprocess = filesToPreprocess.map((file) => path.normalize(file));
+        if (filesToPreprocess.length > 0 && !filesToPreprocess.includes(absolutePath)) {
+          return content;
+        }
+        // if len(filesToPreprocess) == 0 -> preprocess all files
+      }
+
       let cacheBreaker;
       if (!linePreProcessor.settings) {
         const timeHex = Buffer.from(Date.now().toString()).toString('hex');

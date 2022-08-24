@@ -8,6 +8,7 @@ declare module 'hardhat/types/config' {
   type LinePreprocessorConfig = {
     transform: LinePreprocessor;
     settings?: unknown;
+    files?: string;
   };
 
   interface HardhatUserConfig {

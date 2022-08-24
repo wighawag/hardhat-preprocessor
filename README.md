@@ -36,6 +36,7 @@ import 'hardhat-preprocessor';
 Nothing required
 
 ## Tasks
+`hardhat compile` will read config from `hardhat.config.ts` and then preprocess in-memory (ie changes will never hit the file system and you won't need to commit the changes).
 
 `hardhat-preprocessor` also add a new task: `preprocess`
 

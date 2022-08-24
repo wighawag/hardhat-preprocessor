@@ -99,9 +99,9 @@ describe('Test virtual imports and name change', function () {
   });
 });
 
-describe('Preprocess specific files only', function () {
+describe('Preprocess specific files only in disk using preprocess task', function () {
   useEnvironment('hardhat-project-3', {networkName: 'hardhat', clearCache: true});
-  it('It should preprocess only specific file on hardhat', async function () {
+  it('It should preprocess only specific file', async function () {
     await this.env.run('preprocess', {dest: dest, files: "Test.sol"});
     // Test.sol should be preprocessed but not Lib.sol
     const newTestContract = fs.readFileSync(`${dest}/Test.sol`).toString();
@@ -130,4 +130,19 @@ describe('Preprocess specific files only', function () {
     // Only 2 file preprocessed
     expect(fs.readdirSync(dest)).to.have.lengthOf(2);
   })
+})
+
+describe.only('Preprocess specific files in memory only using compile task', function () {
+  useEnvironment('hardhat-project-4', {networkName: 'hardhat', clearCache: true});
+
+  it('It should preprocess only specific file on hardhat', async function () {
+    await this.env.run('compile');
+    // According to the project's hardhat config, only Test.sol should be preprocessed.
+    // Note - with compile preproessing is done in memory not on disk.
+    const newTestContract = getSource(this.env, 'src/Test.sol', 'Test');
+    expect(newTestContract).to.not.equal(fs.readFileSync('src/Test.sol').toString());
+
+    const newLibContract = getSource(this.env, 'src/Lib.sol', 'Lib');
+    expect(newLibContract).to.equal(fs.readFileSync('src/Lib.sol').toString());
+  });
 })
