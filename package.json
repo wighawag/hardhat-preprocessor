@@ -1,6 +1,6 @@
 {
   "name": "hardhat-preprocessor",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Hardhat plugin that can preprocess contracts without writing to filesystem",
   "repository": "github:wighawag/hardhat-preprocessor",
   "author": "Ronan Sandford",
@@ -22,6 +22,7 @@
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/fs-extra": "^5.0.4",
+    "@types/glob": "^7.2.0",
     "@types/mocha": "^5.2.5",
     "@types/node": "^8.10.38",
     "@typescript-eslint/eslint-plugin": "^3.9.1",

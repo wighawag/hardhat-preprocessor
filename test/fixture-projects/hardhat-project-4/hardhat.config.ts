@@ -22,7 +22,10 @@ const config: HardhatUserConfig = {
   },
   preprocess: {
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    eachLine: () => ({transform: (line) => line.replace('asdf', 'Lib')}),
+    eachLine: () => ({
+      transform: (line) => line.replace('asdf', 'Lib'),
+      files: 'Test.sol', // can also be a glob relative to the source. eg `*.sol`
+    }),
   },
 };
 

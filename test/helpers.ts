@@ -24,6 +24,7 @@ export function useEnvironment(
     if (clearCache) {
       fs.emptyDirSync('cache');
     }
+    fs.emptyDirSync('dest');
     process.env.HARDHAT_NETWORK = networkName;
 
     this.env = require('hardhat');
