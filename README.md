@@ -57,7 +57,7 @@ npx hardhat preprocess --files */*.sol
 
 ## Environment extensions
 
-No extra fields added to the envirobment.
+No extra fields added to the environment.
 
 ## Configuration
 
