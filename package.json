@@ -5,57 +5,53 @@
   "repository": "github:wighawag/hardhat-preprocessor",
   "author": "Ronan Sandford",
   "license": "MIT",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
   "keywords": [
     "ethereum",
     "smart-contracts",
     "hardhat",
     "hardhat-plugin"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "main": "dist/esm/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      }
+    },
+    "./helpers": {
+      "import": {
+        "types": "./dist/esm/helpers.d.ts",
+        "default": "./dist/esm/helpers.js"
+      }
+    }
+  },
   "files": [
-    "dist/src/",
-    "src/",
-    "LICENSE",
-    "README.md"
+    "dist",
+    "src"
   ],
   "devDependencies": {
-    "@types/chai": "^4.1.7",
-    "@types/fs-extra": "^5.0.4",
-    "@types/glob": "^7.2.0",
-    "@types/mocha": "^5.2.5",
-    "@types/node": "^8.10.38",
-    "@typescript-eslint/eslint-plugin": "^3.9.1",
-    "@typescript-eslint/parser": "^3.9.1",
-    "chai": "^4.2.0",
-    "dotenv": "^6.2.0",
-    "eslint": "^7.7.0",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-prettier": "^3.1.4",
-    "fs-extra": "^9.0.1",
-    "hardhat": "^2.0.9",
-    "mocha": "^5.2.0",
-    "prettier": "^2.0.5",
-    "prettier-plugin-solidity": "^1.0.0-alpha.57",
-    "source-map-support": "^0.5.12",
-    "ts-node": "^8.1.0",
-    "typescript": "^3.4.5"
+    "@changesets/cli": "^2.29.6",
+    "@types/node": "^24.3.0",
+    "as-soon": "^0.0.11",
+    "hardhat": "3.0.2",
+    "rimraf": "^6.0.1",
+    "rocketh": "^0.13.0",
+    "set-defaults": "^0.0.5",
+    "typescript": "^5.9.2"
   },
   "peerDependencies": {
-    "hardhat": "^2.0.5"
+    "hardhat": "^3.0.0"
   },
   "scripts": {
-    "prepare": "node ./.setup.js",
-    "lint:fix": "eslint --fix .",
-    "lint": "eslint .",
-    "test": "mocha --exit",
-    "build": "tsc",
-    "watch": "tsc -w",
-    "publish:next": "npm publish --tag next",
-    "publish:release": "npm publish",
-    "prepublishOnly": "npm run build"
-  },
-  "dependencies": {
-    "murmur-128": "^0.2.1"
+    "prepare": "pnpm build",
+    "build": "tsc --project tsconfig.json",
+    "dev": "as-soon -w src pnpm build"
   }
 }

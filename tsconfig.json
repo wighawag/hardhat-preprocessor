@@ -1,15 +1,18 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
-    "module": "commonjs",
+    "strict": true,
+    "strictNullChecks": true,
+    "target": "ESNext",
+    "module": "NodeNext",
+    "lib": ["ESNext", "dom"],
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "./dist",
-    "strict": true,
-    "rootDirs": ["./src", "./test"],
-    "esModuleInterop": true
+    "rootDir": "./src",
+    "outDir": "./dist/esm"
   },
-  "exclude": ["dist", "node_modules"],
-  "include": ["./test", "./src"]
+  "include": ["src/**/*.ts"]
 }
